@@ -1,5 +1,6 @@
 import json
-
+import boto3
+import time
 
 def lambda_handler(event, context):
     try:
@@ -10,10 +11,12 @@ def lambda_handler(event, context):
         result = isMutant(dna['dna'])
         if result:
             print('is Mutant')
+            execute_athena_query(dna['dna'][0], '')
             return {
                 'body': json.dumps('200-OK')
             }
         else:
+            execute_athena_query('', dna['dna'][0])
             return {
                 'body': json.dumps('403-Forbidden')
             }
@@ -44,4 +47,39 @@ def isMutant(dna: list):
 		    isMutant=False
 		    break
 
-    return isMutant    
+    return isMutant
+    
+def execute_athena_query(mutant_dna: str, not_mutant_dna: str):
+    client = boto3.client('athena')
+    # Execution
+    query = "INSERT INTO db_dna.dna_register values ('"+mutant_dna+"'"+",'"+not_mutant_dna+"');"
+    print (query)
+    response = client.start_query_execution(
+        QueryString=query,
+        QueryExecutionContext={
+            'Database': 'db_dna'
+        },
+        ResultConfiguration={
+            'OutputLocation': 's3://athenaquerychallenge'
+        },
+            WorkGroup='primary'
+    )
+    
+    query_execution_id = response['QueryExecutionId']
+    print(query_execution_id)
+    
+    retry_count = 100
+    for i in range(1, 1 + retry_count):
+        query_status = client.get_query_execution(QueryExecutionId=query_execution_id)
+        query_execution_status = query_status['QueryExecution']['Status']['State']
+        
+        if query_execution_status == 'FAILED':
+            print(query_status['QueryExecution']['Status']['StateChangeReason'])
+            raise Exception("STATUS:" + query_execution_status + " - " + query_status['QueryExecution']['Status']['StateChangeReason'])
+        else:
+            print(str(i) + " - STATUS:" + query_execution_status)
+            if query_execution_status == 'SUCCEEDED':
+                print("SUCCESS")
+                break
+            else:
+                time.sleep(i)
