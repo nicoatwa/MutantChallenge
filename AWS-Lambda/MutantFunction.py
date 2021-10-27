@@ -29,25 +29,27 @@ def lambda_handler(event, context):
 
 def isMutant(dna: list):
     isMutant=False
-    for dna_str in dna:
-	    count=0
-	    if len(dna_str)==len(dna):
-	        for i in range(1,len(dna_str)):
-	            if dna_str[i-1]=='A' or dna_str[i-1]=='T' or dna_str[i-1]=='C' or dna_str[i-1]=='G':
-	                if dna_str[i-1] == dna_str[i] :
-	                    count+=1
-	                    if count == 3:
-	                        isMutant=True
-	            else:
-	                print("DNA String contains a char different to A,T,C,G")
-	                isMutant=False
-	                break
-	    else:
-		    print("String should contain " + str(len(dna)) + " chars but " + dna_str + " contains: " + str(len(dna_str)))
-		    isMutant=False
-		    break
-
-    return isMutant
+    if len(dna) >= 4:
+        for dna_str in dna:
+    	    count=0
+    	    if len(dna_str)==len(dna):
+    	        for i in range(1,len(dna_str)):
+    	            if dna_str[i-1]=='A' or dna_str[i-1]=='T' or dna_str[i-1]=='C' or dna_str[i-1]=='G':
+    	                if dna_str[i-1] == dna_str[i] :
+    	                    count+=1
+    	                    if count == 3:
+    	                        isMutant=True
+    	            else:
+    	                print("DNA String contains a char different to A,T,C,G")
+    	                isMutant=False
+    	                break
+    	    else:
+    		    print("String should contain " + str(len(dna)) + " chars but " + dna_str + " contains: " + str(len(dna_str)))
+    		    isMutant=False
+    		    break
+    else:
+        print("Array length must be equal or greater than 4")
+    return isMutant    
     
 def execute_athena_query(mutant_dna: str, not_mutant_dna: str):
     client = boto3.client('athena')
