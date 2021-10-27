@@ -31,8 +31,11 @@ def lambda_handler(event, context):
 
 def isMutant(dna: list):
     isMutant=False
+    wrongChar=False
     if len(dna) >= 4:
         for dna_str in dna:
+    	    if wrongChar:
+    	        break
     	    count=0
     	    if len(dna_str)==len(dna):
     	        for i in range(1,len(dna_str)):
@@ -44,6 +47,7 @@ def isMutant(dna: list):
     	            else:
     	                print("DNA String contains a char different to A,T,C,G")
     	                isMutant=False
+    	                wrongChar=True
     	                break
     	    else:
     		    print("String should contain " + str(len(dna)) + " chars but " + dna_str + " contains: " + str(len(dna_str)))
