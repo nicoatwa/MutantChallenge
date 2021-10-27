@@ -13,7 +13,7 @@ def lambda_handler(event, context):
             print('is Mutant')
             execute_athena_query(dna['dna'][0], '')
             return {
-                'body': json.dumps('200-OK')
+                'body': json.dumps('HTTP 200-OK')
             }
         else:
             execute_athena_query('', dna['dna'][0])
