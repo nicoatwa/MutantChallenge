@@ -13,11 +13,13 @@ def lambda_handler(event, context):
             print('is Mutant')
             execute_athena_query(dna['dna'][0], '')
             return {
+                'statusCode': 200,
                 'body': json.dumps('HTTP 200-OK')
             }
         else:
             execute_athena_query('', dna['dna'][0])
             return {
+                'statusCode': 403,
                 'body': json.dumps('403-Forbidden')
             }
     except BaseException as ex:
